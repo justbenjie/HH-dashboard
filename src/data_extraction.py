@@ -1,90 +1,153 @@
 # import libraries
+from concurrent.futures import ThreadPoolExecutor
+import re
 import requests
 import pandas as pd
 import json
 import time
-
-params = {
-        'text': f'NAME:{request}',
-        'area': 16,
-        'page': 0,
-        'per_page': 100
-    }
+from typing import Dict
+from pathlib import Path
+from urllib.parse import urlencode
 
 
 class DataCollector:
     __BASE_URL = "https://api.hh.ru/vacancies/"
 
     __DICT_KEYS = (
-        'id',
-        'name',
-        'salary'
+        "Id",
+        "Name",
+        "Employer",
+        "Salary",
+        "From",
+        "To",
+        "Experience",
+        "Schedule",
+        "Skills",
+        "Requirement",
+        "Location"
     )
 
-    __EXC_RATE = {
-        
-    }
+    __CACHE_DIR = Path("cached_data")
 
+    def __init__(self, exchange_rates: Dict):
+        self._exchange_rates = exchange_rates
+    
+    @staticmethod 
+    def clean_tags(raw_text: str) -> str:
+        """Remove HTML tags from text
+
+        Args:
+            raw_text (str): Raw string with HTML tags
+
+        Returns:
+            str: Processed string
+        """
+
+        pattern = re.compile("<.*?>")
+        return re.sub(pattern, "", raw_text)
+ 
     @staticmethod
-    def __convert_gross(is_gross: bool) -> float:
+    def convert_gross(is_gross: bool) -> float:
+        """Calculate clear salary (net)
+
+        Args:
+            is_gross (bool): True if gross salary is given
+
+        Returns:
+            float: Net salary coefficient
+        """
+
         return 0.87 if is_gross else 1
 
     def get_vacancy(self, vacancy_id: str) -> tuple:
         url = f"{self.__BASE_URL}{vacancy_id}"
         vacancy = requests.api.get(url).json()
-
-        salary = vacancy['salary']
+        try:
+            salary = vacancy['salary']
+        except KeyError:
+            salary = None
         from_to = {"from": None, "to": None}
-
+        
         if salary:
+            if salary["currency"] == "RUR":
+                salary["currency"] = "RUB"
             is_gross = salary["gross"]
-            for k, v in from_to.items():
+            for k in from_to:
                 if salary[k]:
-                    _value = self.__convert_gross(is_gross)
-                    from_to[k] = int(_value * salary[k] / self._exchange_rate[salary["currency"]])
-        return (
-            vacancy_id,
-            vacancy["employer"]["name"],
-            vacancy["name"],
-        )
+                    _value = self.convert_gross(is_gross)
+                    from_to[k] = int(_value * salary[k] / self._exchange_rates[salary["currency"]])
+        try:
+            return (
+                vacancy_id,
+                vacancy["name"],
+                vacancy["employer"]["name"],
+                salary is not None,
+                from_to["from"],
+                from_to["to"],
+                vacancy["experience"]["name"],
+                vacancy["schedule"]["name"],
+                [skill["name"] for skill in vacancy["key_skills"]],
+                self.clean_tags(vacancy["description"]),
+                vacancy['area']['name']
+            )
+        except: pass
 
-    def get_vacancies(request, page_number=0):
-        response = requests.get(url, params).json()
-        return response
+    def collect_vacancies(self, params: Dict, refresh: bool = False) -> Dict:
+        """Parse vacancy description
 
+        Args:
+            params (Dict): Search parametrs for GET request
+            refresh (bool, optional): Refresh cached data. Defaults to False.
 
-    def get_description(request, data):
-        for page in range(0, 20):
-            for vacancy in get_vacancies(request, page)['items']:
-                vacancy_id = vacancy['id']
-                name = vacancy['name'].lower()
-                if not vacancy['salary']:
-                    salary_from, salary_to, currency = None, None, None
-                else:
-                    salary_from = vacancy['salary']['from']
-                    salary_to = vacancy['salary']['to']
-                    currency = vacancy['salary']['currency']
+        Returns:
+            Dict: Dict of vacancy descriptions
+        """
 
-                salary = vacancy['salary']
-                schedule = vacancy['schedule']['name'].lower()
-                requirement = vacancy['snippet']['requirement'].lower()
-                location = vacancy['area']['name']
-                # save data in pandas df
+        # load cached data
+        cache_file = Path(self.__CACHE_DIR, "cache.json")
+        vacancy_name: str = params.get("text")
+        try:
+            cached_vacancies = json.load(open(cache_file, 'r'))
+        except (json.decoder.JSONDecodeError):
+            cached_vacancies = {}
 
-                data = data.append({"id": vacancy_id, "name": name,
-                                    "salary_from": salary_from, "salary_to": salary_to,
-                                    "currency": currency, "schedule": schedule,
-                                    "requirement": requirement, "location": location},
-                                   ignore_index=True)
-            # check if page is last
-            if get_vacancies('data', page)['pages'] - page < 2:
+        # return cached vacancies if refresh if False
+        if not refresh:
+            try:
+                if vacancy_name in cached_vacancies:
+                    return cached_vacancies[vacancy_name]
+            except(FileNotFoundError):
+                pass
+
+        
+        # get number of pages
+        url = self.__BASE_URL + "?" + urlencode(params)
+        number_pages = requests.get(url).json()["pages"]
+
+        # get each vacancy index
+        vacancy_inds = []
+        for ind in range(number_pages+1):
+            response = requests.get(url, {"page": ind}).json()
+            if "items" not in response:
                 break
-        return data
+            vacancy_inds.extend(vacancy["id"] for vacancy in response["items"])
+
+        # parse vacancies by their indexes
+        vacancies = []
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            for vacancy in executor.map(self.get_vacancy, vacancy_inds):
+                vacancies.append({vacancy})
+        
+
+        cached_vacancies[vacancy_name] = vacancies
+        json.dump(cached_vacancies, open(cache_file, "w"), indent=2)
 
 
-    def create_csv(request):
-        df = pd.DataFrame(
-            columns=["id", "name", "salary_from", "salary_to",
-                     "currency", "schedule", "requirement", "location"])
-        df = get_description(request, df)
-        df.to_csv('channel_info.csv')
+if __name__ == "__main__":
+    dc = DataCollector(exchange_rates={"USD": 1, "BYN": 2.815, "RUB": 68.6863, "EUR": 0.9498, "UAH": 29.6342})
+
+    vacancies = dc.collect_vacancies(
+        params={"text": "Python", "area": 1, "per_page": 50},
+        # refresh=True
+    )
+    print(vacancies)

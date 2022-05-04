@@ -37,6 +37,6 @@ class Exchanger:
 
 if __name__ == "__main__":
 
-    exchanger = Exchanger("D:/БНТУ курс 2/РПВС/2 семестр/HH_analysis/cached_data/settings.json")
+    exchanger = Exchanger("settings.json")
     config_rates = { "USD": None, "BYN": None, "RUB": None, "EUR": None, "UAH": None}
     exchanger.update_exchange_rates(config_rates)
