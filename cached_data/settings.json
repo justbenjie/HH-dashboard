@@ -1,0 +1,11 @@
+{
+  "vacancy_name": "Python",
+  "base_code": "USD",
+  "conversion_rates": {
+    "USD": 1,
+    "BYN": 3.1587,
+    "RUB": 71.0703,
+    "EUR": 0.9484,
+    "UAH": 29.8044
+  }
+}
