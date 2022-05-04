@@ -3,9 +3,9 @@
   "base_code": "USD",
   "conversion_rates": {
     "USD": 1,
-    "BYN": 3.1587,
-    "RUB": 71.0703,
-    "EUR": 0.9484,
-    "UAH": 29.8044
+    "BYN": 2.815,
+    "RUB": 68.6863,
+    "EUR": 0.9498,
+    "UAH": 29.6342
   }
 }
