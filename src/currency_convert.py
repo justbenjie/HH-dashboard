@@ -26,6 +26,8 @@ class Exchanger:
         for currencies in rates:
             rates[currencies] = new_rates[currencies]
 
+        rates["RUR"] = rates.pop("RUB")
+
         with open(self.config_path, "r") as cfg:
             config_rates = json.load(cfg)
 

@@ -69,8 +69,6 @@ class DataCollector:
         from_to = {"from": None, "to": None}
         
         if salary:
-            if salary["currency"] == "RUR":
-                salary["currency"] = "RUB"
             is_gross = salary["gross"]
             for k in from_to:
                 if salary[k]:
@@ -148,10 +146,10 @@ class DataCollector:
 
 
 if __name__ == "__main__":
-    dc = DataCollector(exchange_rates={"USD": 1, "BYN": 2.815, "RUB": 68.6863, "EUR": 0.9498, "UAH": 29.6342})
+    dc = DataCollector(exchange_rates={"USD": 1, "BYR": 2.815, "RUR": 68.6863, "EUR": 0.9498, "UAH": 29.6342})
 
     vacancies = dc.collect_vacancies(
-        params={"text": "FPGA", "area": 16, "per_page": 50},
+        params={"text": "python", "area": 16, "per_page": 50},
         # refresh=True
     )
   
