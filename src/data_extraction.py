@@ -58,7 +58,7 @@ class DataCollector:
         """
 
         return 0.87 if is_gross else 1
-
+ 
     def get_vacancy(self, vacancy_id: str) -> tuple:
         url = f"{self.__BASE_URL}{vacancy_id}"
         vacancy = requests.api.get(url).json()
@@ -132,22 +132,26 @@ class DataCollector:
                 break
             vacancy_inds.extend(vacancy["id"] for vacancy in response["items"])
 
-        # parse vacancies by their indexes
+
+       # parse vacancies by their indexes
         vacancies = []
         with ThreadPoolExecutor(max_workers=2) as executor:
             for vacancy in executor.map(self.get_vacancy, vacancy_inds):
-                vacancies.append({vacancy})
+                vacancies.append(vacancy)
         
+        unziped_vacancies = list(zip(*vacancies))
+        data = {}
+        for ind, key in enumerate(self.__DICT_KEYS):
+            data[key] = unziped_vacancies[ind]
 
-        cached_vacancies[vacancy_name] = vacancies
-        json.dump(cached_vacancies, open(cache_file, "w"), indent=2)
+        json.dump(data, open(cache_file, "w"), indent=2)
 
 
 if __name__ == "__main__":
     dc = DataCollector(exchange_rates={"USD": 1, "BYN": 2.815, "RUB": 68.6863, "EUR": 0.9498, "UAH": 29.6342})
 
     vacancies = dc.collect_vacancies(
-        params={"text": "Python", "area": 1, "per_page": 50},
+        params={"text": "FPGA", "area": 16, "per_page": 50},
         # refresh=True
     )
-    print(vacancies)
+  
