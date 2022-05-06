@@ -23,7 +23,7 @@ class DataCollector:
         "Experience",
         "Schedule",
         "Skills",
-        "Requirement",
+        "Description",
         "Location"
     )
 
@@ -142,14 +142,16 @@ class DataCollector:
         for ind, key in enumerate(self.__DICT_KEYS):
             data[key] = unziped_vacancies[ind]
 
-        json.dump(data, open(cache_file, "w"), indent=2)
+        cached_vacancies[vacancy_name] = data
+        json.dump(cached_vacancies, open(cache_file, "w"), indent=2)
+
+        return data
 
 
 if __name__ == "__main__":
     dc = DataCollector(exchange_rates={"USD": 1, "BYR": 2.815, "RUR": 68.6863, "EUR": 0.9498, "UAH": 29.6342})
 
     vacancies = dc.collect_vacancies(
-        params={"text": "python", "area": 16, "per_page": 50},
+        params={"text": "c#", "area": 16, "per_page": 50},
         # refresh=True
     )
-  
