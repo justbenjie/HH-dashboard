@@ -103,7 +103,7 @@ class DataCollector:
 
         # load cached data
         cache_file = Path(self.__CACHE_DIR, "cache.json")
-        vacancy_name: str = params.get("text")
+        vacancy_name: str = params.get("text").lower().strip()
         try:
             cached_vacancies = json.load(open(cache_file, 'r'))
         except (json.decoder.JSONDecodeError):
@@ -152,6 +152,6 @@ if __name__ == "__main__":
     dc = DataCollector(exchange_rates={"USD": 1, "BYR": 2.815, "RUR": 68.6863, "EUR": 0.9498, "UAH": 29.6342})
 
     vacancies = dc.collect_vacancies(
-        params={"text": "c#", "area": 16, "per_page": 50},
+        params={"text": "Python ", "area": 16, "per_page": 50},
         # refresh=True
     )
