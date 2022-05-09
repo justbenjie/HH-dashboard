@@ -1,6 +1,9 @@
 {
-  "vacancy_name": "Python",
-  "base_code": "USD",
+  "search_params": {
+    "vacancy_name": "Python",
+    "area": 16,
+    "per_page": 50
+  },
   "conversion_rates": {
     "USD": 1,
     "BYR": 3.0099,

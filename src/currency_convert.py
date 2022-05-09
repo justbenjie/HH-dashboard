@@ -9,12 +9,16 @@ class Exchanger:
     def __init__(self, config_path: str):
         self.config_path = config_path
 
-    def update_exchange_rates(self, rates: Dict):
+    def update_exchange_rates(self, rates: Dict) -> Dict:
         """Scrape exchange rates and save them in rates dictionary
 
         Args:
             rates (Dict): dictionary of currencies and their exchange rates
+
+        Return:
+            Dict: updated rates
         """
+        
 
         try: 
             response = requests.get(self.__EXCHANGE_RATE_URL).json()
@@ -29,12 +33,14 @@ class Exchanger:
         rates["RUR"] = rates.pop("RUB")
 
         with open(self.config_path, "r") as cfg:
-            config_rates = json.load(cfg)
+            settings = json.load(cfg)
 
-        config_rates["conversion_rates"] = rates
+        settings["conversion_rates"] = rates
 
         with open(self.config_path, "w") as cfg:
-            json.dump(config_rates, cfg, indent=2)
+            json.dump(settings, cfg, indent=2)
+
+        return rates
 
 
 if __name__ == "__main__":

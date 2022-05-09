@@ -1,0 +1,14 @@
+from rake_nltk import Rake
+import json
+import nltk
+import itertools
+text = json.load(open("cached_data/cache.json", 'r'))
+
+text = ' '.join(map(str, text["python"]["Description"]))
+
+r = Rake()
+r.extract_keywords_from_text(text)
+
+# Extraction given the list of strings where each string is a sentence.
+print(r.get_ranked_phrases()[0:2])
+
