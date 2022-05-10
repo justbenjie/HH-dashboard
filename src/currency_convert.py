@@ -1,24 +1,21 @@
 import json
 import requests
 from typing import Dict
-
+from pathlib import Path
    
 class Exchanger:
     __EXCHANGE_RATE_URL = "https://v6.exchangerate-api.com/v6/4f44d7ad6be4d970e8ecc92e/latest/USD/"
-    
-    def __init__(self, config_path: str):
-        self.config_path = config_path
 
-    def update_exchange_rates(self, rates: Dict) -> Dict:
+    def __init__(self):
+        self.config_path = Path("settings.json") 
+        self.rates = { "BYN": None, "USD": None, "RUB": None, "EUR": None, "UAH": None}
+
+    def update_exchange_rates(self) -> Dict:
         """Scrape exchange rates and save them in rates dictionary
-
-        Args:
-            rates (Dict): dictionary of currencies and their exchange rates
 
         Return:
             Dict: updated rates
         """
-        
 
         try: 
             response = requests.get(self.__EXCHANGE_RATE_URL).json()
@@ -27,24 +24,24 @@ class Exchanger:
         except requests.exceptions.ConnectionError:
             print("Exchange rates can't be updated without internet connection!")
 
-        for currencies in rates:
-            rates[currencies] = new_rates[currencies]
+        for currencies in self.rates:
+            self.rates[currencies] = new_rates[currencies]
 
-        rates["RUR"] = rates.pop("RUB")
+        self.rates["RUR"] = self.rates.pop("RUB")
+        self.rates["BYR"] = self.rates.pop("BYN")
 
         with open(self.config_path, "r") as cfg:
             settings = json.load(cfg)
 
-        settings["conversion_rates"] = rates
+        settings["conversion_rates"] = self.rates
 
         with open(self.config_path, "w") as cfg:
             json.dump(settings, cfg, indent=2)
 
-        return rates
+        return self.rates
 
 
 if __name__ == "__main__":
 
-    exchanger = Exchanger("settings.json")
-    config_rates = { "USD": None, "BYN": None, "RUB": None, "EUR": None, "UAH": None}
-    exchanger.update_exchange_rates(config_rates)
+    exchanger = Exchanger()
+    exchanger.update_exchange_rates()

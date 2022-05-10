@@ -20,7 +20,7 @@ class Analyser:
         skilles_series = skilles_series.apply(lambda x: x.lower().strip())
 
         top_skills = skilles_series.value_counts().head(10)
-        return top_skills.to_list()
+        return top_skills.to_dict()
 
     """
     @staticmethod

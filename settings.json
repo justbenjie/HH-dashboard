@@ -1,14 +1,15 @@
 {
   "search_params": {
-    "vacancy_name": "Python",
+    "text": "python",
     "area": 16,
-    "per_page": 50
+    "per_page": 50,
+    "vacancy_name": "python"
   },
   "conversion_rates": {
     "USD": 1,
-    "BYR": 3.0099,
-    "EUR": 0.9462,
-    "UAH": 29.7652,
-    "RUR": 66.9504
+    "EUR": 0.9475,
+    "UAH": 30.0443,
+    "RUR": 68.8966,
+    "BYR": 3.2553
   }
 }
