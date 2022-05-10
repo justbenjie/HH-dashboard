@@ -8,7 +8,6 @@ class Exchanger:
 
     def __init__(self):
         self.config_path = Path("settings.json") 
-        self.rates = { "BYN": None, "USD": None, "RUB": None, "EUR": None, "UAH": None}
 
     def update_exchange_rates(self) -> Dict:
         """Scrape exchange rates and save them in rates dictionary
@@ -24,21 +23,23 @@ class Exchanger:
         except requests.exceptions.ConnectionError:
             print("Exchange rates can't be updated without internet connection!")
 
-        for currencies in self.rates:
-            self.rates[currencies] = new_rates[currencies]
+        rates = { "BYN": None, "USD": None, "RUB": None, "EUR": None, "UAH": None}
 
-        self.rates["RUR"] = self.rates.pop("RUB")
-        self.rates["BYR"] = self.rates.pop("BYN")
+        for currencies in rates:
+            rates[currencies] = new_rates[currencies]
+
+        rates["RUR"] = rates.pop("RUB")
+        rates["BYR"] = rates.pop("BYN")
 
         with open(self.config_path, "r") as cfg:
             settings = json.load(cfg)
 
-        settings["conversion_rates"] = self.rates
+        settings["conversion_rates"] = rates
 
         with open(self.config_path, "w") as cfg:
             json.dump(settings, cfg, indent=2)
 
-        return self.rates
+        return rates
 
 
 if __name__ == "__main__":

@@ -34,12 +34,15 @@ class Analyser:
     def parse_salary(salary: List) -> List:
 
         merged_salary = list(itertools.chain.from_iterable(salary))
+        
         salary_Series = pd.Series(merged_salary).dropna()
+        """
         upper_limit = salary_Series.quantile(0.99)
         lower_limit = salary_Series.quantile(0.01)
         
         processed_salary = salary_Series[(salary_Series > lower_limit) & (salary_Series < upper_limit)]
-        return processed_salary.to_list()
+        """
+        return salary_Series.to_list()
 
 
         
