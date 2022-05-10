@@ -29,7 +29,8 @@ class Controller:
     def create_response(self, refresh: bool = False):
         vacancies = self.collector.collect_vacancies(refresh)
         skills = self.analyser.find_top_skills(vacancies["Skills"])
-        response = {"Skills": skills}
-        for column in ["Salary", "Schedule", "Experience"]:
-            response[column] = vacancies[column]
+        salary = self.analyser.parse_salary([vacancies["From"], vacancies["To"]])
+        response = {"Skills": skills, "Salary": salary}
+        for column in ["Schedule", "Experience"]:
+            response[column] = self.analyser.value_count(vacancies[column])
         return response
