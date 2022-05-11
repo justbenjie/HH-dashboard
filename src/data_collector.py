@@ -66,7 +66,6 @@ class Collector:
     def get_vacancy(self, vacancy_id: str) -> tuple:
         url = f"{self.__BASE_URL}{vacancy_id}"
         vacancy = requests.api.get(url).json()
-        print(id)
         try:
             salary = vacancy['salary']
         except KeyError:
@@ -135,8 +134,8 @@ class Collector:
                 break
             vacancy_ids.extend(vacancy["id"] for vacancy in response["items"])
 
-        print(vacancy_ids)
-       # parse vacancies by their indexes
+        
+        # parse vacancies by their indexes
         vacancies = []
         with ThreadPoolExecutor(max_workers=2) as executor:
             for vacancy in executor.map(self.get_vacancy, vacancy_ids):

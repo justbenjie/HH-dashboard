@@ -19,7 +19,7 @@ class Controller:
 
         self.exchanger.update_exchange_rates()
         if vacancy_name:
-            self.settings["search_params"]["vacancy_name"] = vacancy_name
+            self.settings["search_params"]["text"] = vacancy_name
 
         with open(self.config_path, "w") as cfg:
             json.dump(self.settings, cfg, indent=2)
@@ -29,8 +29,9 @@ class Controller:
     def create_response(self, refresh: bool = False):
         vacancies = self.collector.collect_vacancies(refresh)
         skills = self.analyser.find_top_skills(vacancies["Skills"])
-        salary = self.analyser.parse_salary([vacancies["From"], vacancies["To"]])
+        salary = self.analyser.parse_salary_by_experience(vacancies["From"], vacancies["To"], vacancies["Experience"])
         response = {"Skills": skills, "Salary": salary}
         for column in ["Schedule", "Experience"]:
             response[column] = self.analyser.value_count(vacancies[column])
+        print(response)
         return response

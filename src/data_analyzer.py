@@ -31,21 +31,20 @@ class Analyser:
         return value_count.to_dict()
 
     @staticmethod
-    def parse_salary(salary: List) -> List:
-
-        merged_salary = list(itertools.chain.from_iterable(salary))
-        
-        salary_Series = pd.Series(merged_salary).dropna()
+    def parse_salary_by_experience(salary_from: List, salary_to: List, experience: List) -> Dict:
+        from_exp = {"Experience": experience, "Salary": salary_from}
+        to_exp = {"Experience": experience, "Salary": salary_to}
+        df_from = pd.DataFrame(from_exp)
+        df_to = pd.DataFrame(to_exp)
+        concat_df = pd.concat([df_from, df_to])
         """
-        upper_limit = salary_Series.quantile(0.99)
-        lower_limit = salary_Series.quantile(0.01)
-        
-        processed_salary = salary_Series[(salary_Series > lower_limit) & (salary_Series < upper_limit)]
+        upper_limit = concat_df["Salary"].quantile(0.99)
+        lower_limit = concat_df["Salary"].quantile(0.01)
+        concat_df = concat_df[(concat_df["Salary"] > lower_limit) & (concat_df["Salary"] < upper_limit)]
         """
-        return salary_Series.to_list()
-
-
-        
+        concat_df = concat_df.groupby(["Experience"]).median()
+        concat_df.dropna(inplace=True)
+        return concat_df.to_dict()["Salary"]
 
     """
     @staticmethod

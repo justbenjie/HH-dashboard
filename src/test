@@ -1,2 +1,20 @@
-import pathlib
-print(pathlib.Path().resolve())
+import json 
+import pandas as pd
+
+with open("cached_data/cache.json", "r") as cfg:
+    data = json.load(cfg)["c#"]
+
+from_exp = {"Experience": data["Experience"], "Salary": data["From"]}
+to_exp = {"Experience": data["Experience"], "Salary": data["To"]}
+df_from = pd.DataFrame(from_exp)
+print(df_from.shape)
+df_to = pd.DataFrame(to_exp)
+print(df_to.shape)
+
+concat_df = pd.concat([df_from, df_to])
+upper_limit = concat_df["Salary"].quantile(0.99)
+lower_limit = concat_df["Salary"].quantile(0.01)
+concat_df = concat_df[(concat_df["Salary"] > lower_limit) & (concat_df["Salary"] < upper_limit)]
+print(concat_df.shape)
+concat_df = concat_df.groupby(["Experience"]).median()
+print(concat_df.to_dict()['Salary'])
