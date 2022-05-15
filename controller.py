@@ -28,9 +28,10 @@ class Controller:
 
     def create_response(self, refresh: bool = False):
         vacancies = self.collector.collect_vacancies(refresh)
+        count = len(vacancies["Id"])
         skills = self.analyser.find_top_skills(vacancies["Skills"])
-        salary = self.analyser.parse_salary_by_experience(vacancies["From"], vacancies["To"], vacancies["Experience"])
-        response = {"Skills": skills, "Salary": salary}
+        salary, min, max, median = self.analyser.parse_salary_by_experience(vacancies["From"], vacancies["To"], vacancies["Experience"])
+        response = {"Count": count, "Skills": skills, "SalaryExp": salary, "SalaryMin": min, "SalaryMax": max, "SalaryMedian": median}
         for column in ["Schedule", "Experience"]:
             response[column] = self.analyser.value_count(vacancies[column])
         print(response)

@@ -37,6 +37,7 @@ class Analyser:
         df_from = pd.DataFrame(from_exp)
         df_to = pd.DataFrame(to_exp)
         concat_df = pd.concat([df_from, df_to])
+        min, max, median = concat_df["Salary"].min(), concat_df["Salary"].max(), concat_df["Salary"].median()
         """
         upper_limit = concat_df["Salary"].quantile(0.99)
         lower_limit = concat_df["Salary"].quantile(0.01)
@@ -44,7 +45,12 @@ class Analyser:
         """
         concat_df = concat_df.groupby(["Experience"]).median()
         concat_df.dropna(inplace=True)
-        return concat_df.to_dict()["Salary"]
+        return concat_df.to_dict()["Salary"], min, max, median
+
+ 
+
+
+
 
     """
     @staticmethod
