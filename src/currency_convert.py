@@ -39,7 +39,7 @@ class Exchanger:
             return rates
             
         except requests.exceptions.ConnectionError:
-            print("Exchange rates can't be updated without internet connection!")
+            print("\nExchange rates can't be updated without internet connection!\n")
             
 
         

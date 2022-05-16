@@ -34,7 +34,7 @@ class Collector:
         _settings = json.load(open('settings.json', 'r'))
         self.exchange_rates = _settings["conversion_rates"]
         self.params = _settings["search_params"]
-        print(self.params)
+        print("   Search params:\n", self.params)
         
     @staticmethod 
     def clean_tags(raw_text: str) -> str:
@@ -123,7 +123,7 @@ class Collector:
         
         # get number of pages
         url = self.__BASE_URL + "?" + urlencode(self.params)
-        print(url)
+        print("   Url:\n", url)
         number_pages = requests.get(url).json()["pages"]
 
         # get each vacancy index

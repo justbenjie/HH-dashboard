@@ -45,7 +45,7 @@ class Analyser:
         """
         concat_df = concat_df.groupby(["Experience"]).median()
         concat_df.dropna(inplace=True)
-        return concat_df.to_dict()["Salary"], min, max, median
+        return {"SalaryMin": min, "SalaryMax": max, "SalaryMedian": median, "SalaryExpMedian": concat_df.to_dict()["Salary"]}
 
  
 
