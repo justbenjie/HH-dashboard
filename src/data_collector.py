@@ -10,7 +10,6 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 
-
 class Collector:
     __BASE_URL = "https://api.hh.ru/vacancies/"
 
@@ -34,7 +33,7 @@ class Collector:
         _settings = json.load(open('settings.json', 'r'))
         self.exchange_rates = _settings["conversion_rates"]
         self.params = _settings["search_params"]
-        print("   Search params:\n", self.params)
+        print("Search params: ", self.params)
         
     @staticmethod 
     def clean_tags(raw_text: str) -> str:
@@ -123,7 +122,7 @@ class Collector:
         
         # get number of pages
         url = self.__BASE_URL + "?" + urlencode(self.params)
-        print("   Url:\n", url)
+        print("Url: ", url)
         number_pages = requests.get(url).json()["pages"]
 
         # get each vacancy index
