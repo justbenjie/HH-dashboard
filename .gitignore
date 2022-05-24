@@ -3,3 +3,4 @@ venv/
 .env
 cached_data/cache.json
 settings.json
+logging.xlsx

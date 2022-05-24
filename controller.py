@@ -3,6 +3,7 @@ from src.data_analyzer import Analyser
 from src.data_collector import Collector
 import json
 from typing import Dict
+import pandas as pd
 
 
 class Controller:
@@ -28,11 +29,15 @@ class Controller:
 
     def create_response(self, refresh: bool = False):
         vacancies = self.collector.collect_vacancies(refresh)
+
+        df = pd.DataFrame(data=vacancies)
+        df.to_excel('logging.xlsx', index=False)
+
         count = len(vacancies["Id"])
         skills = self.analyser.find_top_skills(vacancies["Skills"])
         salary = self.analyser.parse_salary_by_experience(vacancies["From"], vacancies["To"], vacancies["Experience"])
         response = {"Count": count, "Skills": skills, "Salary": salary}
         for column in ["Schedule", "Experience"]:
             response[column] = self.analyser.value_count(vacancies[column])
-        print(response)
+        #print(response)
         return response
