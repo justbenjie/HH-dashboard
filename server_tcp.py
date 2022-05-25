@@ -3,7 +3,7 @@ import json
 import socket
 import asyncio
 
-HOST, PORT = "localhost", 8888
+HOST, PORT = "0.0.0.0", 8888
  
 config_path = "settings.json"
 controller = Controller(config_path)
