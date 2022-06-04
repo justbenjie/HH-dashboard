@@ -39,5 +39,6 @@ class Controller:
         response = {"Count": count, "Skills": skills, "Salary": salary}
         for column in ["Schedule", "Experience"]:
             response[column] = self.analyser.value_count(vacancies[column])
-        #print(response)
+        print(f"Send: {response}")
+        print()
         return response

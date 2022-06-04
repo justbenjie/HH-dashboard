@@ -63,6 +63,7 @@ class Collector:
         return 0.87 if is_gross else 1
  
     def get_vacancy(self, vacancy_id: str) -> tuple:
+        
         url = f"{self.__BASE_URL}{vacancy_id}"
         vacancy = requests.api.get(url).json()
         try:
